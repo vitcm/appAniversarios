@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Image } from "react-native";
 //import DatePicker from "react-native-datepicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -42,11 +42,11 @@ export function Home() {
 
   const [sortBdays, setSortBdays] = useState<BdayData[]>([]);
 
-  useEffect(() => {
-    setSortBdays([...sortBdays]);
-  }, [myBdays]);
+  // useEffect(() => {
+  //   setSortBdays([...sortBdays]);
+  // }, [myBdays]);
 
-  function handleAddNewBday() {
+  const handleAddNewBday = useCallback(() => {
     const dia = date.getDate();
     let dias = "";
     if (dia < 10) {
@@ -102,24 +102,29 @@ export function Home() {
       dia: dia,
       mes: mes,
     };
-
-    setMyBdays((oldState) => [...oldState, data]);
+    console.log(data);
+    setMyBdays((oldState) => {
+      return [...oldState, data].sort((a, b) => a.mes=== b.mes && a.dia - b.dia || a.mes - b.mes);
+    });
     //console.log(myBdays);
     //console.log("MyBdays:", myBdays);
-    const teste = myBdays.sort((a, b) => {
-      if (a.mes === b.mes) {
-        return a.dia - b.dia;
-      }
-      return a.mes - b.mes;
-    });
-    setSortBdays(teste);
+    // const teste = myBdays.sort((a, b) => {
+    //   if (a.mes === b.mes) {
+    //     return a.dia - b.dia;
+    //   }
+    //   return a.mes - b.mes;
+    // });
+    // console.log("myBdays:", myBdays);
+    // console.log(teste);
 
-    forceUpdate();
-  }
+    // setSortBdays([data]);
 
-  const forceUpdate = () => {
-    FlatList.current?.scrollToOffset({ offset: 1 });
-  };
+    // forceUpdate();
+  }, [date, newBday, myBdays]);
+
+  // const forceUpdate = () => {
+  //   FlatList.current?.scrollToOffset({ offset: 1 });
+  // };
 
   return (
     <View>
@@ -161,7 +166,7 @@ export function Home() {
 
         <FlatList
           //style={styled.Bday}
-          data={sortBdays}
+          data={myBdays}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <Text style={styled.textoBday}>
